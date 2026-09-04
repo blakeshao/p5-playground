@@ -53,13 +53,68 @@
   <script>
     // Clear button: clears the canvas
     document.getElementById('clear-btn').addEventListener('click', function() {
-      background(255);
+      if (typeof clearAll === 'function') {
+        clearAll();
+      } else {
+        background(255);
+      }
     });
 
-    // Export PNG button: exports the canvas as transparent PNG
+    // Export PNG button: exports the canvas as PNG with transparent background
     document.getElementById('export-btn').addEventListener('click', function() {
-      saveCanvas('p5-playground', 'png');
+      // Use canvas API to save with transparent background
+      const c = document.querySelector('canvas');
+      if (!c) return;
+      
+      // Create a temporary canvas with transparent background
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = c.width;
+      tempCanvas.height = c.height;
+      const ctx = tempCanvas.getContext('2d');
+      
+      // Get the image data from the original canvas
+      const imgData = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+      ctx.putImageData(imgData, 0, 0);
+      
+      // Make white pixels transparent
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        // Check if pixel is white (R=255, G=255, B=255)
+        if (data[i] === 255 && data[i + 1] === 255 && data[i + 2] === 255) {
+          data[i + 3] = 0;  // Set alpha to 0 (transparent)
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      
+      // Save using canvas API
+      tempCanvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'p5-playground.png';
+        link.click();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
     });
+
+    // Keyboard shortcut for Clear: [C] - use event capturing to intercept before sketch handlers
+    document.addEventListener('keydown', function(e) {
+      if ((e.key === 'c' || e.key === 'C') && !isInputFocused(e.target)) {
+        if (typeof clearAll === 'function') {
+          clearAll();
+          // Don't prevent default - let sketches handle it too if they want
+        }
+      }
+    }, true);  // true = use event capturing phase
+
+    // Helper function to check if an input element is focused
+    function isInputFocused(target) {
+      return target && (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT'
+      );
+    }
   </script>
 </body>
 </html>
