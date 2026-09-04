@@ -26,18 +26,40 @@
     #hud .row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     #swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #111; }
     #swatch.hidden, #hud.hidden { display: none; }
+    button {
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #111; background: rgba(255,255,255,0.92);
+      border: 1px solid #111; padding: 6px 10px; cursor: pointer;
+    }
+    button:hover { background: rgba(200,200,200,0.92); }
+    #export-btn {
+      position: fixed; right: 14px; bottom: 14px; z-index: 10;
+    }
   </style>
 </head>
 <body>
   <div id="picker">
     <label for="brush">brush</label>
     <select id="brush"></select>
+    <button id="clear-btn">Clear</button>
   </div>
+  <button id="export-btn">Export PNG</button>
   <div id="hud">
     <div class="row"><span id="swatch"></span><span id="status"></span></div>
     <div id="help"></div>
   </div>
   <script src="shared/hud.js"></script>
   <script src="shared/loader.js"></script>
+  <script>
+    // Clear button: clears the canvas
+    document.getElementById('clear-btn').addEventListener('click', function() {
+      background(255);
+    });
+
+    // Export PNG button: exports the canvas as transparent PNG
+    document.getElementById('export-btn').addEventListener('click', function() {
+      saveCanvas('p5-playground', 'png');
+    });
+  </script>
 </body>
 </html>
