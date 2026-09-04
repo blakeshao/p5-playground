@@ -50,7 +50,8 @@ const BRUSH = {
     ['[ ]', 'brush size   - = density   m mirror'],
     ['space', 'auto-fill page   e eraser'],
     ['c', 'clear   r new grid module'],
-    ['s', 'save PNG   h hide this'],
+    ['s', 'save PNG  '],
+    ['z', 'save Transparent PNG   '],
   ],
 };
 
@@ -1119,6 +1120,7 @@ function keyPressed() {
   else if (key === 'c' || key === 'C') clearAll();
   else if (key === 'r' || key === 'R') { clearAll(); u = floor(random(9, 16)); }
   else if (key === 's' || key === 'S') saveCanvas('schematic-brush', 'png');
+  else if (key === 'z' || key === 'Z') paint.save('schematic-brush-transparent.png');
   else if (key === 'h' || key === 'H') toggleHUD();
   updateHUD();
 }
