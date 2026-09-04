@@ -74,13 +74,13 @@
       
       // Get the image data from the original canvas
       const imgData = c.getContext('2d').getImageData(0, 0, c.width, c.height);
-      ctx.putImageData(imgData, 0, 0);
       
-      // Make white pixels transparent
+      // Make white pixels transparent (with threshold for anti-aliased edges)
       const data = imgData.data;
       for (let i = 0; i < data.length; i += 4) {
-        // Check if pixel is white (R=255, G=255, B=255)
-        if (data[i] === 255 && data[i + 1] === 255 && data[i + 2] === 255) {
+        // Check if pixel is white or near-white (R>=250, G>=250, B>=250)
+        // This handles anti-aliasing and blending artifacts
+        if (data[i] >= 250 && data[i + 1] >= 250 && data[i + 2] >= 250) {
           data[i + 3] = 0;  // Set alpha to 0 (transparent)
         }
       }
