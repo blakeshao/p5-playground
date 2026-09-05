@@ -115,7 +115,7 @@ function draw() {
   }
   active = keep;
 
-  background(247);
+  background(255);
   if (showStaff) image(staffLayer, 0, 0);
   image(paint, 0, 0);
   for (const s of active) renderSnippet(s, window, now);
