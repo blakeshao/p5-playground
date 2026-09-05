@@ -26,18 +26,95 @@
     #hud .row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
     #swatch { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #111; }
     #swatch.hidden, #hud.hidden { display: none; }
+    button {
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+      color: #111; background: rgba(255,255,255,0.92);
+      border: 1px solid #111; padding: 6px 10px; cursor: pointer;
+    }
+    button:hover { background: rgba(200,200,200,0.92); }
+    #export-btn {
+      position: fixed; right: 14px; bottom: 14px; z-index: 10;
+    }
   </style>
 </head>
 <body>
   <div id="picker">
     <label for="brush">brush</label>
     <select id="brush"></select>
+    <button id="clear-btn">Clear</button>
   </div>
+  <button id="export-btn">Export PNG</button>
   <div id="hud">
     <div class="row"><span id="swatch"></span><span id="status"></span></div>
     <div id="help"></div>
   </div>
   <script src="shared/hud.js"></script>
   <script src="shared/loader.js"></script>
+  <script>
+    // Clear button: clears the canvas
+    document.getElementById('clear-btn').addEventListener('click', function() {
+      if (typeof clearAll === 'function') {
+        clearAll();
+      } else {
+        background(255);
+      }
+    });
+
+    // Export PNG button: exports the canvas as PNG with transparent background
+    document.getElementById('export-btn').addEventListener('click', function() {
+      // Use canvas API to save with transparent background
+      const c = document.querySelector('canvas');
+      if (!c) return;
+      
+      // Create a temporary canvas with transparent background
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = c.width;
+      tempCanvas.height = c.height;
+      const ctx = tempCanvas.getContext('2d');
+      
+      // Get the image data from the original canvas
+      const imgData = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+      
+      // Make white pixels transparent (with threshold for anti-aliased edges)
+      const data = imgData.data;
+      for (let i = 0; i < data.length; i += 4) {
+        // Check if pixel is white or near-white (R>=250, G>=250, B>=250)
+        // This handles anti-aliasing and blending artifacts
+        if (data[i] >= 250 && data[i + 1] >= 250 && data[i + 2] >= 250) {
+          data[i + 3] = 0;  // Set alpha to 0 (transparent)
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      
+      // Save using canvas API
+      tempCanvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'p5-playground.png';
+        link.click();
+        URL.revokeObjectURL(url);
+      }, 'image/png');
+    });
+
+    // Keyboard shortcut for Clear: [C] - use event capturing to intercept before sketch handlers
+    document.addEventListener('keydown', function(e) {
+      if ((e.key === 'c' || e.key === 'C') && !isInputFocused(e.target)) {
+        if (typeof clearAll === 'function') {
+          clearAll();
+          // Don't prevent default - let sketches handle it too if they want
+        }
+      }
+    }, true);  // true = use event capturing phase
+
+    // Helper function to check if an input element is focused
+    function isInputFocused(target) {
+      return target && (
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.tagName === 'SELECT'
+      );
+    }
+  </script>
 </body>
 </html>

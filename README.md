@@ -34,3 +34,5 @@ brushes/<name>/sketch.js   one p5 global-mode sketch per brush
    cursor — a single black dot, whatever the brush or its mode — so do not
    draw a cursor of your own.
 5. Add `['<name>', 'Display Name']` to `BRUSHES` in `shared/loader.js`.
+
+Now export PNG buttons with transparent artwork export
